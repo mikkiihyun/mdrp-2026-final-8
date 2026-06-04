@@ -106,27 +106,27 @@ class LineDetector(Node):
         # 1. Detect monitor.
         top_left, top_right, bottom_right, bottom_left = detect_monitor(image)
         if any(p is None for p in (top_left, top_right, bottom_right, bottom_left)):
-            self.get_logger().warning("Monitor not detected.")
-            return
-
-        # 2. Rectify monitor.
-        rectified = rectify_monitor(image, top_left, top_right, bottom_right, bottom_left)
-        if rectified is None:
-            self.get_logger().warning("Monitor not rectified.")
-            return
-
-        # 3. Detect line.
-        line = detect_line(rectified)
-        if line is None:
-            self.get_logger().warning("Line not detected.")
-            return
-        self._debug_line(msg, rectified, line)
-
-        # 4. Calculate and publish angle.
-        angle = calculate_angle(line)
-        if angle is None:
-            self.get_logger().warning("Angle not calculated.")
-            return
+            self.get_logger().warning("Monitor not detected. Publishing 0.0 deg.")
+            angle = 0.0
+        else:
+            # 2. Rectify monitor.
+            rectified = rectify_monitor(image, top_left, top_right, bottom_right, bottom_left)
+            if rectified is None:
+                self.get_logger().warning("Monitor not rectified. Publishing 0.0 deg.")
+                angle = 0.0
+            else:
+                # 3. Detect line.
+                line = detect_line(rectified)
+                if line is None:
+                    self.get_logger().warning("Line not detected. Publishing 0.0 deg.")
+                    angle = 0.0
+                else:
+                    self._debug_line(msg, rectified, line)
+                    # 4. Calculate angle.
+                    angle = calculate_angle(line)
+                    if angle is None:
+                        self.get_logger().warning("Angle not calculated. Publishing 0.0 deg.")
+                        angle = 0.0
 
         angle_msg = Float32()
         angle_msg.data = float(angle)
