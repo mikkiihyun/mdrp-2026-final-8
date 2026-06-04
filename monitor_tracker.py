@@ -86,6 +86,12 @@ def rectify_monitor(image: np.ndarray, corners: PointArray, max_width: int = 100
         for idx in range(4)
     ]
 
+    horizontal = 0.5 * (side_lengths[0] + side_lengths[2])
+    vertical = 0.5 * (side_lengths[1] + side_lengths[3])
+    if vertical > horizontal:
+        src = np.roll(src, -1, axis=0)
+        side_lengths = side_lengths[1:] + side_lengths[:1]
+
     width = max(1, int(round(max(side_lengths[0], side_lengths[2]))))
     width = min(width, max_width)
     height = max(1, int(round(width * 9.0 / 16.0)))
